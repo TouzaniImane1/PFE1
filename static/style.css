@@ -1,0 +1,51 @@
+/* Appliquer une police moderne */
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: linear-gradient(135deg, hsl(175, 58%, 28%), #315085);
+    color: white;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Conteneur principal */
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    max-width: 500px;
+}
+
+/* Titre */
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Bouton d'enregistrement */
+.record-btn {
+    background-color: #ac210c;
+    color: white;
+    font-size: 18px;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.record-btn:hover {
+    background-color: #e84118;
+}
+
+/* Texte des résultats */
+#result {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #f1f1f1;
+}
