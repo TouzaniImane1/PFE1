@@ -14,7 +14,7 @@ class OpenUrlCommandExecutor(CommandExecutor):
     def __init__(self, url):
         self.url = url
 
-    def execute(self, command, *args):  # 👈 Accepte plusieurs arguments
+    def execute(self, command=None, *args):  # 👈 Accepte plusieurs arguments
         webbrowser.open(self.url)
         return f"Ouverture de {self.url}"
 

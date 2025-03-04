@@ -20,7 +20,10 @@ def transcribe():
 
         result = handle_transcribe(audio_file)
         
-        text = result.get("text", "").strip().lower()
+        if isinstance(result, dict):
+             text = result.get("text", "").strip()
+        else:
+             text = result.strip()  # Si c'est une chaîne, on l'utilise directement
 
         command_executor = command_map.get(text)
         if command_executor:
