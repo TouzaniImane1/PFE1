@@ -4,6 +4,38 @@ const resultText = document.getElementById("result");
 let mediaRecorder;
 let audioChunks = [];
 
+// Fonction pour faire parler l'assistant avec la première voix disponible en français
+function speakMessage(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = "fr-FR"; // Définir la langue en français
+    utterance.rate = 1; // Vitesse normale
+    utterance.pitch = 1; // Tonalité normale
+
+    // Fonction pour sélectionner la première voix française
+    function setVoice() {
+        const voices = window.speechSynthesis.getVoices();
+        const frenchVoice = voices.find(voice => voice.lang === "fr-FR") || voices[0]; // Prendre la première voix FR
+        if (frenchVoice) {
+            utterance.voice = frenchVoice;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Vérifier si les voix sont déjà chargées
+    if (window.speechSynthesis.getVoices().length > 0) {
+        setVoice();
+    } else {
+        // Attendre que les voix soient chargées
+        window.speechSynthesis.onvoiceschanged = setVoice;
+    }
+}
+
+// Exécuter le message de bienvenue au chargement de la page
+window.addEventListener("load", () => {
+    speakMessage("Bonjour ! Je suis votre assistant vocal. Si vous voulez ouvrir un site, dites 'Ouvre' suivi du nom du site. Dites 'Stop' pour quitter.");
+});
+
+
 recordBtn.addEventListener("click", async () => {
     if (mediaRecorder && mediaRecorder.state === "recording") {
         mediaRecorder.stop();
