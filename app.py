@@ -21,11 +21,12 @@ def transcribe():
         result = handle_transcribe(audio_file)
         
         if isinstance(result, dict):
-             text = result.get("text", "").strip()
+             text = result.get("text", "").strip().lower()
         else:
              text = result.strip()  # Si c'est une chaîne, on l'utilise directement
-
+             
         command_executor = command_map.get(text)
+
         if command_executor:
             execution_result = command_executor.execute()
             return jsonify({"text": text, "status": execution_result})
@@ -36,4 +37,4 @@ def transcribe():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=9000, debug=True)
+    app.run(host="0.0.0.0", port=9000, debug=True, use_reloader=False)

@@ -8,6 +8,7 @@ recordBtn.addEventListener("click", async () => {
     if (mediaRecorder && mediaRecorder.state === "recording") {
         mediaRecorder.stop();
         recordBtn.textContent = "🎤 Commencer l'enregistrement";
+
     } else {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -52,6 +53,7 @@ recordBtn.addEventListener("click", async () => {
                     // Réactiver le bouton après traitement
                     recordBtn.disabled = false;
                     recordBtn.textContent = "🎤 Commencer l'enregistrement";
+
                 }
             };
 
@@ -61,6 +63,7 @@ recordBtn.addEventListener("click", async () => {
 
             console.error("Erreur d'accès au microphone:", error);
             resultText.textContent = "🎤 Impossible d'accéder au microphone. Vérifiez votre configuration.";
+
         }
     }
 });

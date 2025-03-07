@@ -8,17 +8,27 @@ import speech_recognition as sr
 import time
 
 
+
 class CommandExecutor():
-    def execute(self):
+    def execute(self, command=None, *args):
         pass
 
 # ✅ Ouvrir des sites web
 class OpenUrlCommandExecutor(CommandExecutor):
+    last_execution_time = 0  # ✅ Stocke le dernier appel
+
     def __init__(self, url):
         self.url = url
 
-    def execute(self, command=None, *args):  # 👈 Accepte plusieurs arguments
-        webbrowser.open(self.url)
+    def execute(self, command=None, *args):
+        current_time = time.time()
+        if current_time - OpenUrlCommandExecutor.last_execution_time < 1.5:  # ✅ Vérifie le temps écoulé
+            print("⏳ Commande ignorée pour éviter une exécution en double.")
+            return "Commande ignorée pour éviter une exécution en double."
+        
+        OpenUrlCommandExecutor.last_execution_time = current_time  # ✅ Mise à jour du temps
+        print(f"✅ Exécution unique de la commande pour {self.url}")  
+        webbrowser.open(self.url)  # ✅ Maintenant, il ne s'ouvrira qu'une seule fois
         return f"Ouverture de {self.url}"
 
 # ✅ Ouvrir des applications locales
