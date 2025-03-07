@@ -4,6 +4,9 @@ import webbrowser
 import imaplib
 import email
 from email.header import decode_header
+import speech_recognition as sr
+import time
+
 
 class CommandExecutor():
     def execute(self):
@@ -29,17 +32,19 @@ class OpenLocalAppCommandExecutor(CommandExecutor):
 
 # ✅ Lire les e-mails
 class ReadEmailsCommandExecutor(CommandExecutor):
-    def execute(self, command, *args): 
+   def execute(self, command=None, *args): 
         EMAIL = "imane.tzn392@gmail.com"
         PASSWORD = "lbog ckxy goqj yief"
 
         try:
+            # 🔹 Connexion à la boîte e-mail
             mail = imaplib.IMAP4_SSL("imap.gmail.com")
             mail.login(EMAIL, PASSWORD)
             mail.select("inbox")
 
+            # 🔹 Récupérer les 3 derniers e-mails
             result, data = mail.search(None, "ALL")
-            mail_ids = data[0].split()[-3:]
+            mail_ids = data[0].split()[-3:]  # Prendre les 3 derniers
 
             emails = []
             for mail_id in mail_ids:
@@ -50,20 +55,84 @@ class ReadEmailsCommandExecutor(CommandExecutor):
                         subject, encoding = decode_header(msg["Subject"])[0]
                         if isinstance(subject, bytes) and encoding:
                             subject = subject.decode(encoding)
-                        emails.append(f"- {subject}")
+                        emails.append((subject, msg))
 
-            mail.logout()
+            mail.logout()  # Fermer la connexion
+
             if emails:
-                email_text = "Voici vos derniers e-mails : " + ". ".join(emails)
-                print(email_text)
-                # LIRE À VOIX HAUTE
+                # 🔹 Annoncer les e-mails à voix haute
+                email_titles = "\n".join([f"{i+1}. {email[0]}" for i, email in enumerate(emails)])
                 engine = pyttsx3.init()
-                engine.say(email_text)
+                engine.say("Voici vos trois derniers e-mails. Dis le numéro de celui que tu veux écouter : un, deux ou trois.")
                 engine.runAndWait()
+                
+                for i, email_data in enumerate(emails):
+                    engine.say(f"E-mail {i+1} : {email_data[0]}")
+                    engine.runAndWait()
+                    time.sleep(2)  # Pause pour éviter une lecture trop rapide
 
-                return email_text
+                # 🔹 Attendre la réponse de l'utilisateur
+                def recognize_speech():
+                    recognizer = sr.Recognizer()
+                    with sr.Microphone() as source:
+                        print("🔊 Dis le numéro de l'e-mail (1, 2 ou 3)...")
+                        engine.say("Dis maintenant le numéro de l’e-mail.")
+                        engine.runAndWait()
+                        recognizer.adjust_for_ambient_noise(source, duration=1.5)
+                        audio = recognizer.listen(source, timeout=7)
+
+                    try:
+                        spoken_text = recognizer.recognize_google(audio, language="fr-FR")
+                        print(f"🎤 Tu as dit : {spoken_text}")
+                        return spoken_text
+                    except sr.UnknownValueError:
+                        return None
+                    except sr.RequestError:
+                        return None
+
+                # 🔹 Mappage des nombres parlés
+                spoken_numbers = {
+                    "un": 1, "premier": 1, "1": 1,
+                    "deux": 2, "second": 2, "2": 2,
+                    "trois": 3, "troisième": 3, "3": 3
+                }
+                choice = recognize_speech()
+                choice_number = spoken_numbers.get(choice.lower()) if choice else None
+
+                if choice_number is None:
+                    engine.say("Je n'ai pas compris. Réessaie en disant un, deux ou trois.")
+                    engine.runAndWait()
+                    print("Commande non reconnue.")
+                    return "Commande non reconnue."
+                
+                choice_index = choice_number - 1  # Convertir en index (0,1,2)
+                if 0 <= choice_index < len(emails):
+                    msg = emails[choice_index][1]  # Récupérer le message e-mail
+
+                    # 🔹 Extraction du contenu de l’e-mail
+                    email_content = ""
+                    if msg.is_multipart():
+                        for part in msg.walk():
+                            content_type = part.get_content_type()
+                            if content_type == "text/plain":
+                                email_content = part.get_payload(decode=True).decode()
+                                break
+                    else:
+                        email_content = msg.get_payload(decode=True).decode()
+
+                    # 🔹 Lecture du contenu de l’e-mail
+                    engine.say(f"Voici le contenu de l’e-mail : {email_content}")
+                    engine.runAndWait()
+                    print(f"📩 Contenu de l’e-mail : {email_content}")
+                    return email_content
+                else:
+                    engine.say("Choix invalide. Réessaie en disant un, deux ou trois.")
+                    engine.runAndWait()
+                    print("Choix invalide.")
+                    return "Choix invalide."
             else:
                 return "Aucun e-mail trouvé."
+
         except Exception as e:
             return f"Erreur lors de la récupération des e-mails : {e}"
 
