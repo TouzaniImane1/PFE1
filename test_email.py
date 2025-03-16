@@ -1,8 +1,5 @@
-from executors.command_executor import ReadEmailsCommandExecutor
+import pyttsx3
 
-# Créer une instance de la classe
-executor = ReadEmailsCommandExecutor()
-
-# Exécuter la commande pour récupérer les e-mails
-print("🔍 Test de récupération des e-mails...")
-print(executor.execute())
+engine = pyttsx3.init()
+engine.say("Bonjour, ceci est un test de voix.")
+engine.runAndWait()

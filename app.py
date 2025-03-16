@@ -13,6 +13,7 @@ def index():
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
     if "audio" not in request.files:
+        print("⚠️ Aucun fichier audio reçu !")
         return jsonify({"error": "No audio file provided"}), 400
     
     try:
@@ -24,7 +25,8 @@ def transcribe():
              text = result.get("text", "").strip().lower()
         else:
              text = result.strip()  # Si c'est une chaîne, on l'utilise directement
-             
+        print(f"🎤 Texte détecté : {text}")  # 🔹 Vérifier ce que Vosk détecte
+
         command_executor = command_map.get(text)
 
         if command_executor:
