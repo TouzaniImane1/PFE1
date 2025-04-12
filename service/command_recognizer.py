@@ -15,6 +15,8 @@ def recognize_command(text):
     for command in command_map.keys():
         if command in text:
             return command
+    return None
+    
 # Ajouter cette fonction tout en haut du fichier
 NUMBERS = {
     "un": "1", "deux": "2", "trois": "3",

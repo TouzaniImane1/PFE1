@@ -13,8 +13,8 @@ function speakMessage(message) {
     utterance.rate = 1; // Vitesse normale
     utterance.pitch = 1; // Tonalité normale
 
-    // Fonction pour sélectionner la première voix française
-    function setVoice() {
+// Fonction pour sélectionner la première voix française
+function setVoice() {
         const voices = window.speechSynthesis.getVoices();
         const frenchVoice = voices.find(voice => voice.lang === "fr-FR") || voices[0]; // Prendre la première voix FR
         if (frenchVoice) {
@@ -38,12 +38,17 @@ function speakMessage(message) {
 // Exécuter le message de bienvenue au chargement de la page
 window.addEventListener("load", () => {
     setTimeout(() => {
-        speakMessage("Bonjour ! Je suis votre assistant vocal. Si vous voulez ouvrir un site ou une application local, dites 'Ouvre' suivi du nom du site ou de l'application.");
+        speakMessage("Bonjour ! Je suis votre assistant vocal. Si vous voulez ouvrir un site ou une application local, dites 'Ouvre' suivi du nom du site ou de l'application, ou dites juste le nom lu site ou de l'application .");
     }, 1500); // Ajout d'un délai pour éviter les conflits de chargement
 });
 
 
 recordBtn.addEventListener("click", async () => {
+    if (recordBtn.classList.contains("processing")) {
+        // Si bloqué, clic = reset
+        resetButton();
+    }
+
     if (mediaRecorder && mediaRecorder.state === "recording") {
         mediaRecorder.stop();
         recordBtn.textContent = "🎤 Commencer l'enregistrement";
@@ -115,6 +120,18 @@ recordBtn.addEventListener("click", async () => {
     }
 });
 
+recordBtn.addEventListener("dblclick", () => {
+    // Si double-clic, on force le reset même si bloqué
+    resetButton();
+});
+
+recordBtn.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    if (confirm("Forcer la réinitialisation du bouton ?")) {
+        resetButton();
+    }
+});
+
 // Fonction pour envoyer une commande vocale au serveur
 function sendCommandToServer(transcription) {
     fetch("/transcribe", {
@@ -124,20 +141,27 @@ function sendCommandToServer(transcription) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status.includes("Voici vos trois derniers e-mails")) {
+        // ✅ S'il attend un choix d'email, ne pas reset le bouton
+        if (data.awaiting_email_choice) {
             isWaitingForEmailChoice = true;
-            recordBtn.innerHTML = "🎙️ Dites le numéro...";
+            recordBtn.innerHTML = "🎙️ Dites le numéro de l'email...";
             recordBtn.disabled = false;
         } else {
             isWaitingForEmailChoice = false;
-            recordBtn.innerHTML = "🎤 Commencer l'enregistrement";
+           // ✅ Ne pas lire côté navigateur si les emails sont déjà lus côté serveur
+        if (!data.status.includes("Lecture des e-mails en cours...")) {
+            speakMessage(data.status);
+        }
+        resetButton();
+
         }
     })
     .catch(error => {
         console.error("Erreur d'envoi de la commande:", error);
-        recordBtn.innerHTML = "🎤 Commencer l'enregistrement";
+        resetButton();
     });
 }
+
 // Fonction pour gérer la sélection d'un e-mail
 function handleEmailSelection(choice) {
     const spokenNumbers = {
@@ -149,8 +173,8 @@ function handleEmailSelection(choice) {
     const selectedNumber = spokenNumbers[choice];
 
     if (selectedNumber) {
-        isWaitingForEmailChoice = false; // Désactiver l'attente
-
+        isWaitingForEmailChoice = false;
+    
         fetch("/transcribe", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -159,20 +183,16 @@ function handleEmailSelection(choice) {
         .then(response => response.json())
         .then(data => {
             resultText.innerHTML = `<strong>Contenu :</strong> "${data.status}"`;
-            isWaitingForEmailChoice = false;
-            recordBtn.innerHTML = "🎤 Commencer l'enregistrement";
+            speakMessage(data.status);  // 🔊 Lecture du contenu
+            resetButton();
         })
         .catch(error => {
             console.error("Erreur de sélection d'email:", error);
-            recordBtn.innerHTML = "🎤 Commencer l'enregistrement";
-            recordBtn.disabled = false;
-
+            resetButton();
         });
-    } else {
-        resultText.innerHTML = `<strong>Erreur :</strong> Je n'ai pas compris. Dites un, deux ou trois.`;
-        recordBtn.innerHTML = "🎙️ Écoute...";
+        
     }
-}
+}    
 function resetButton() {
     const recordBtn = document.getElementById("recordBtn"); // Vérifie l'ID de ton bouton
     recordBtn.disabled = false;
