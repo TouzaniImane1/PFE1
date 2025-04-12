@@ -118,6 +118,7 @@ class TakePhotoCommandExecutor:
         else:
             self.speak_async("Caméra fermée sans capture.")
             return "Caméra fermée sans capture."
+        
 class TakeScreenshotCommandExecutor:
     def execute(self, command=None, *args):
         try:
@@ -204,12 +205,13 @@ class OpenDynamicUrlCommandExecutor:
                         return f"Erreur : impossible d’ouvrir {site}. {str(e)}"
         return "Commande non reconnue pour l'ouverture d'un site."
 
-# ✅ Ouvrir des applications locales
+        # ✅ Ouvrir des sites web
 class OpenUrlCommandExecutor(CommandExecutor):
     last_execution_time = 0  # ✅ Stocke le dernier appel
 
     def __init__(self, url):
         self.url = url
+        self.message = f"J'ai ouvert le site {url}"
 
     def execute(self, command=None, *args):
         current_time = time.time()
@@ -219,13 +221,14 @@ class OpenUrlCommandExecutor(CommandExecutor):
         
         OpenUrlCommandExecutor.last_execution_time = current_time  # ✅ Mise à jour du temps
         print(f"✅ Exécution unique de la commande pour {self.url}")  
-        webbrowser.open(self.url)  # ✅ Maintenant, il ne s'ouvrira qu'une seule fois
+        webbrowser.open(self.url)  # ✅il ne s'ouvrira qu'une seule fois
         return f"Ouverture de {self.url}"
 
 # ✅ Ouvrir des applications locales
 class OpenLocalAppCommandExecutor(CommandExecutor):
     def __init__(self, command):
         self.command = command
+        self.message = f"J'ai ouvert l'application {command}"
 
     def execute(self, command, *args):
         os.system(self.command)
@@ -439,6 +442,30 @@ command_map = {
     "lance l'explorateur de fichiers": OpenLocalAppCommandExecutor("explorer"),
     "ouvre l'explorateur": OpenLocalAppCommandExecutor("explorer"),
     "capture d'écran": OpenLocalAppCommandExecutor("snippingtool"),
+    "word": OpenLocalAppCommandExecutor("winword"),
+    "ouvre word": OpenLocalAppCommandExecutor("winword"),
+    "lance word": OpenLocalAppCommandExecutor("winword"),
+    "excel": OpenLocalAppCommandExecutor("excel"),
+    "ouvre excel": OpenLocalAppCommandExecutor("excel"),
+    "lance excel": OpenLocalAppCommandExecutor("excel"),
+    "powerpoint": OpenLocalAppCommandExecutor("powerpnt"),
+    "ouvre powerpoint": OpenLocalAppCommandExecutor("powerpnt"),
+    "lance powerpoint": OpenLocalAppCommandExecutor("powerpnt"),
+    "chrome": OpenLocalAppCommandExecutor("chrome"),
+    "ouvre chrome": OpenLocalAppCommandExecutor("chrome"),
+    "lance chrome": OpenLocalAppCommandExecutor("chrome"),
+    "edge": OpenLocalAppCommandExecutor("msedge"),
+    "ouvre edge": OpenLocalAppCommandExecutor("msedge"),
+    "lance edge": OpenLocalAppCommandExecutor("msedge"),
+    "paint": OpenLocalAppCommandExecutor("mspaint"),
+    "ouvre paint": OpenLocalAppCommandExecutor("mspaint"),
+    "lance paint": OpenLocalAppCommandExecutor("mspaint"),
+    "invite de commandes": OpenLocalAppCommandExecutor("cmd"),
+    "terminal": OpenLocalAppCommandExecutor("cmd"),
+    "paramètres": OpenLocalAppCommandExecutor("ms-settings:"),
+    "ouvre les paramètres": OpenLocalAppCommandExecutor("ms-settings:"),
+
+    # 📌 Caprure d'écran
     "ouvre la capture d'écran": TakeScreenshotCommandExecutor(),
     "lance la capture d'écran": TakeScreenshotCommandExecutor(),
     "la capture d'écran": TakeScreenshotCommandExecutor(),
@@ -451,42 +478,7 @@ command_map = {
     "screen": TakeScreenshotCommandExecutor(),
 
  # Microsoft Word
-    "word": OpenLocalAppCommandExecutor("winword"),
-    "ouvre word": OpenLocalAppCommandExecutor("winword"),
-    "lance word": OpenLocalAppCommandExecutor("winword"),
-
-    # Microsoft Excel
-    "excel": OpenLocalAppCommandExecutor("excel"),
-    "ouvre excel": OpenLocalAppCommandExecutor("excel"),
-    "lance excel": OpenLocalAppCommandExecutor("excel"),
-
-    # Microsoft PowerPoint
-    "powerpoint": OpenLocalAppCommandExecutor("powerpnt"),
-    "ouvre powerpoint": OpenLocalAppCommandExecutor("powerpnt"),
-    "lance powerpoint": OpenLocalAppCommandExecutor("powerpnt"),
-
-    # Google Chrome
-    "chrome": OpenLocalAppCommandExecutor("chrome"),
-    "ouvre chrome": OpenLocalAppCommandExecutor("chrome"),
-    "lance chrome": OpenLocalAppCommandExecutor("chrome"),
-
-    # Microsoft Edge
-    "edge": OpenLocalAppCommandExecutor("msedge"),
-    "ouvre edge": OpenLocalAppCommandExecutor("msedge"),
-    "lance edge": OpenLocalAppCommandExecutor("msedge"),
-
-    # Paint
-    "paint": OpenLocalAppCommandExecutor("mspaint"),
-    "ouvre paint": OpenLocalAppCommandExecutor("mspaint"),
-    "lance paint": OpenLocalAppCommandExecutor("mspaint"),
-
-    # Invite de commandes
-    "invite de commandes": OpenLocalAppCommandExecutor("cmd"),
-    "terminal": OpenLocalAppCommandExecutor("cmd"),
-
-    # Paramètres
-    "paramètres": OpenLocalAppCommandExecutor("ms-settings:"),
-    "ouvre les paramètres": OpenLocalAppCommandExecutor("ms-settings:"),
+    
 
 
 
