@@ -14,6 +14,7 @@ import subprocess
 import re
 import locale
 import pyautogui
+from datetime import datetime
 
 # Initialiser le moteur de synthèse vocale
 engine = pyttsx3.init()
@@ -120,21 +121,25 @@ class TakePhotoCommandExecutor:
             return "Caméra fermée sans capture."
         
 class TakeScreenshotCommandExecutor:
+    def __init__(self):
+        self.message = "Capture d’écran enregistrée."
+
     def execute(self, command=None, *args):
         try:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"screenshot_{timestamp}.png"
-            save_path = f"C:/Users/ADS/Pictures/{filename}"  # change si nécessaire
+            save_path = f"C:/Users/ADS/Pictures/{filename}"  # ✏️ Change le chemin si besoin
 
             screenshot = pyautogui.screenshot()
             screenshot.save(save_path)
 
             print(f"📸 Capture enregistrée sous {save_path}")
-            subprocess.Popen(["python", "speak_process.py", "Capture d’écran enregistrée."])
-            return f"Capture d’écran enregistrée dans {save_path}."
+            subprocess.Popen(["python", "speak_process.py", self.message])  # 🔊 Parle
+            return {"status": self.message}  # ✅ Pour que JS puisse lire/afficher
         except Exception as e:
-            print(f"❌ Erreur de capture : {str(e)}")
-            return f"Erreur lors de la capture : {str(e)}"
+            error_msg = f"Erreur lors de la capture : {str(e)}"
+            print(f"❌ {error_msg}")
+            return {"status": error_msg}
 
 class TellTimeCommandExecutor:
     """ Exécuteur pour annoncer l'heure actuelle """

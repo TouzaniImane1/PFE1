@@ -141,7 +141,7 @@ function sendCommandToServer(transcription) {
                 recordBtn.disabled = false;
             } else {
                 isWaitingForEmailChoice = false;
-                speakMessage(data.status);
+                speakMessage(data.status); // 🔊 Lecture du message retourné par le serveur
                 resetButton();
             }
         })
