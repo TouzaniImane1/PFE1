@@ -8,7 +8,6 @@ import speech_recognition as sr
 import time
 import cv2
 import threading
-import datetime
 import psutil
 import subprocess
 import re
@@ -146,7 +145,7 @@ class TellTimeCommandExecutor:
 
 
     def execute(self, command=None, *args):
-        now = datetime.datetime.now()
+        now = datetime.now()
         time_text = f"Il est {now.hour} heures et {now.minute} minutes."
         print(f"🕰️ {time_text}")
         subprocess.Popen(["python", "speak_process.py", time_text])
@@ -166,7 +165,7 @@ class TellDateCommandExecutor:
                 print("⚠️ Locale fr_FR non disponible sur ce système.")
                 # Pas d'arrêt du script, il lira en anglais dans ce cas
 
-        today = datetime.datetime.now()
+        today = datetime.now()
         date_text = f"Aujourd'hui, nous sommes le {today.strftime('%A %d %B %Y')}."
         print(f"📅 {date_text}")
 
